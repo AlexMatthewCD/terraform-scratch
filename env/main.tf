@@ -1,9 +1,18 @@
 terraform {
+  required_version = "~> 1.14.8"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = "6.40.0"
     }
+  }
+  backend "s3" {
+    bucket       = "scratch-tf-stg-tfstate"
+    key          = "terraform.tfstate"
+    region       = "ap-south-1"
+    profile      = "cd-sandbox"
+    encrypt      = false
+    use_lockfile = true
   }
 }
 
@@ -25,17 +34,5 @@ resource "aws_s3_bucket_versioning" "version-tfstate" {
   bucket = aws_s3_bucket.tfstate.id
   versioning_configuration {
     status = "Enabled"
-  }
-}
-
-terraform {
-  required_version = "~> 1.14.8"
-  backend "s3" {
-    bucket       = "scratch-tf-stg-tfstate"
-    key          = "terraform.tfstate"
-    region       = "ap-south-1"
-    profile      = "cd-sandbox"
-    encrypt      = false
-    use_lockfile = true
   }
 }
