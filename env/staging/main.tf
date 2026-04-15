@@ -36,3 +36,10 @@ resource "aws_s3_bucket_versioning" "version-tfstate" {
     status = "Enabled"
   }
 }
+
+module "vpc" {
+  source   = "../../modules/vpc"
+  app_name = var.app_name
+  env_name = var.env_name
+  vpc_cidr = var.vpc_cidr
+}
