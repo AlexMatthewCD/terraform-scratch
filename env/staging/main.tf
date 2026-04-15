@@ -7,7 +7,7 @@ terraform {
     }
   }
   backend "s3" {
-    bucket       = "scratch-tf-stg-tfstate"
+    bucket       = "alex-scratch-tf-stg-tfstate"
     key          = "terraform.tfstate"
     region       = "ap-south-1"
     profile      = "cd-sandbox"
@@ -25,7 +25,9 @@ resource "aws_s3_bucket" "tfstate" {
   bucket = "${var.app_name}-${var.env_name}-tfstate"
   tags = {
     Name        = "${var.app_name}-tfstate"
+    Application = var.app_name
     Environment = var.env_name
+    CostCenter = var.cost_center
   }
   force_destroy = true
 }
@@ -42,4 +44,5 @@ module "vpc" {
   app_name = var.app_name
   env_name = var.env_name
   vpc_cidr = var.vpc_cidr
+  cost_center = var.cost_center
 }
