@@ -10,7 +10,7 @@ variable "env_name" {
 
 variable "cost_center" {
   description = "Tag used to identify the infra cost"
-  default = "Alex-CD"
+  default     = "Alex-CD"
 }
 
 variable "vpc_cidr" {

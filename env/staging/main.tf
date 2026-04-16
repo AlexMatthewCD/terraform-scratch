@@ -6,14 +6,14 @@ terraform {
       version = "6.40.0"
     }
   }
-  backend "s3" {
-    bucket       = "alex-scratch-tf-stg-tfstate"
-    key          = "terraform.tfstate"
-    region       = "ap-south-1"
-    profile      = "cd-sandbox"
-    encrypt      = false
-    use_lockfile = true
-  }
+  # backend "s3" {
+  #   bucket       = "alex-scratch-tf-stg-tfstate"
+  #   key          = "terraform.tfstate"
+  #   region       = "ap-south-1"
+  #   profile      = "cd-sandbox"
+  #   encrypt      = false
+  #   use_lockfile = true
+  # }
 }
 
 provider "aws" {
@@ -27,7 +27,7 @@ resource "aws_s3_bucket" "tfstate" {
     Name        = "${var.app_name}-tfstate"
     Application = var.app_name
     Environment = var.env_name
-    CostCenter = var.cost_center
+    CostCenter  = var.cost_center
   }
   force_destroy = true
 }
@@ -40,9 +40,18 @@ resource "aws_s3_bucket_versioning" "version-tfstate" {
 }
 
 module "vpc" {
-  source   = "../../modules/vpc"
-  app_name = var.app_name
-  env_name = var.env_name
-  vpc_cidr = var.vpc_cidr
+  source      = "../../modules/vpc"
+  app_name    = var.app_name
+  env_name    = var.env_name
+  vpc_cidr    = var.vpc_cidr
   cost_center = var.cost_center
+}
+
+module "security" {
+  source      = "../../modules/security"
+  app_name    = var.app_name
+  env_name    = var.env_name
+  vpc_cidr    = var.vpc_cidr
+  cost_center = var.cost_center
+  vpc_id      = module.vpc.vpc_id
 }
