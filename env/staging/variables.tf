@@ -15,7 +15,7 @@ variable "cost_center" {
 
 variable "vpc_cidr" {
   description = "IPV4 CIDR Block for the main VPC"
-  default     = "20.7.0.0/20"
+  default     = "7.7.0.0/20"
 }
 
 variable "domain_name" {

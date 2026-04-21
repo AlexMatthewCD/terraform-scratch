@@ -10,6 +10,9 @@ variable "cost_center" {
 variable "domain_name" {
   description = "Main demo domain name for practice"
 }
-# variable "demo_alb" {
-#   description = "load balencer for practice"
-# }
+variable "certificate" {
+  description = "Passing certificate to get ARN value"
+}
+variable "website_bucket" {
+  description = "demo website bucket"
+}

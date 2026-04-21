@@ -28,6 +28,12 @@ provider "aws" {
   alias   = "dns"
 }
 
+provider "aws" {
+  region  = "us-east-1"
+  profile = "cd-sandbox:SandboxDeveloperAccess"
+  alias   = "east"
+}
+
 
 resource "aws_s3_bucket" "tfstate" {
   provider = aws.infra
@@ -74,27 +80,53 @@ module "security" {
 
 module "acm" {
   providers = {
-    aws.infra = aws.infra
     aws.dns   = aws.dns
+    aws.east = aws.east
   }
   source      = "../../modules/acm"
   app_name    = var.app_name
   env_name    = var.env_name
   cost_center = var.cost_center
   domain_name = var.domain_name
-  demo_alb    = module.alb.demo_alb
+  # demo_alb    = module.alb.demo_alb
 }
 
-module "alb" {
+// used when learning ALB
+# module "alb" {
+#   providers = {
+#     aws.infra = aws.infra
+#   }
+#   source        = "../../modules/alb"
+#   app_name      = var.app_name
+#   env_name      = var.env_name
+#   cost_center   = var.cost_center
+#   public_subnet = module.vpc.public_subnet
+#   vpc_id        = module.vpc.vpc_id
+#   vpc_cidr      = var.vpc_cidr
+#   demo_sg_id    = module.security.demo_sg_id
+# }
+
+module "cloudfront" {
+  providers = {
+    aws.infra = aws.infra
+    aws.dns = aws.dns
+  }
+  source      = "../../modules/cloudfront"
+  app_name    = var.app_name
+  env_name    = var.env_name
+  cost_center = var.cost_center
+  domain_name = var.domain_name
+  certificate = module.acm.certificate
+  website_bucket = module.s3.website_bucket
+}
+
+module "s3" {
   providers = {
     aws.infra = aws.infra
   }
-  source        = "../../modules/alb"
-  app_name      = var.app_name
-  env_name      = var.env_name
-  cost_center   = var.cost_center
-  public_subnet = module.vpc.public_subnet
-  vpc_id        = module.vpc.vpc_id
-  vpc_cidr      = var.vpc_cidr
-  demo_sg_id    = module.security.demo_sg_id
+  source      = "../../modules/s3"
+  app_name    = var.app_name
+  env_name    = var.env_name
+  cost_center = var.cost_center
+  s3_distribution = module.cloudfront.s3_distribution
 }

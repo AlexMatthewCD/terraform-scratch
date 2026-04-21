@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source                = "hashicorp/aws"
-      configuration_aliases = [aws.infra, aws.dns]
+      configuration_aliases = [aws.east, aws.dns]
     }
   }
 }
@@ -12,23 +12,24 @@ data "aws_route53_zone" "domain" {
   name     = var.domain_name
 }
 
-resource "aws_route53_record" "scratch" {
-  provider = aws.dns
-  zone_id  = data.aws_route53_zone.domain.zone_id
-  name     = "alex-learn.${var.domain_name}"
-  type     = "A"
+// used when learning ALB
+# resource "aws_route53_record" "scratch" {
+#   provider = aws.dns
+#   zone_id  = data.aws_route53_zone.domain.zone_id
+#   name     = "alex-learn.${var.domain_name}"
+#   type     = "A"
 
-  alias {
-    name                   = var.demo_alb.dns_name
-    zone_id                = var.demo_alb.zone_id
-    evaluate_target_health = true
-  }
-}
+#   alias {
+#     name                   = var.demo_alb.dns_name
+#     zone_id                = var.demo_alb.zone_id
+#     evaluate_target_health = true
+#   }
+# }
 
 // create certificate
 resource "aws_acm_certificate" "certificate" {
-  provider          = aws.infra
-  domain_name       = var.domain_name
+  provider          = aws.east
+  domain_name       = "alex-learn.${var.domain_name}"
   validation_method = "DNS"
 
   tags = {
@@ -63,7 +64,7 @@ resource "aws_route53_record" "attach_record" {
 }
 
 resource "aws_acm_certificate_validation" "certificate_validation" {
-  provider                = aws.infra
+  provider                = aws.east
   certificate_arn         = aws_acm_certificate.certificate.arn
   validation_record_fqdns = [for record in aws_route53_record.attach_record : record.fqdn]
 }
