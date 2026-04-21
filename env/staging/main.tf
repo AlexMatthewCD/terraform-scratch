@@ -18,13 +18,13 @@ terraform {
 
 provider "aws" {
   region  = "ap-south-1"
-  profile = "cd-sandbox"
+  profile = "cd-sandbox:SandboxDeveloperAccess"
   alias   = "infra"
 }
 
 provider "aws" {
   region  = "ap-south-1"
-  profile = "iems"
+  profile = "aws-cd-edtech-nonprod:EdtechNonprodDeveloperAccess"
   alias   = "dns"
 }
 
@@ -75,11 +75,26 @@ module "security" {
 module "acm" {
   providers = {
     aws.infra = aws.infra
-    aws.dns = aws.dns
+    aws.dns   = aws.dns
   }
   source      = "../../modules/acm"
   app_name    = var.app_name
   env_name    = var.env_name
   cost_center = var.cost_center
   domain_name = var.domain_name
+  demo_alb    = module.alb.demo_alb
+}
+
+module "alb" {
+  providers = {
+    aws.infra = aws.infra
+  }
+  source        = "../../modules/alb"
+  app_name      = var.app_name
+  env_name      = var.env_name
+  cost_center   = var.cost_center
+  public_subnet = module.vpc.public_subnet
+  vpc_id        = module.vpc.vpc_id
+  vpc_cidr      = var.vpc_cidr
+  demo_sg_id    = module.security.demo_sg_id
 }

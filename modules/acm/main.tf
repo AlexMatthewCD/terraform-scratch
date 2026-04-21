@@ -1,20 +1,28 @@
+terraform {
+  required_providers {
+    aws = {
+      source                = "hashicorp/aws"
+      configuration_aliases = [aws.infra, aws.dns]
+    }
+  }
+}
+
 data "aws_route53_zone" "domain" {
-    provider = aws.dns
+  provider = aws.dns
   name     = var.domain_name
 }
 
-# data "aws_s3_bucket" "site" {
-#   provider = aws.dns
-#   bucket = "scratch.iemsdev.online"
-# }
-
 resource "aws_route53_record" "scratch" {
   provider = aws.dns
-  zone_id = data.aws_route53_zone.domain.zone_id
-  name    = "scratch.${var.domain_name}"
-  records = ["scratch.iemsdev.online.s3-website.ap-south-1.amazonaws.com"]
-  type    = "CNAME"
-  ttl     = 300
+  zone_id  = data.aws_route53_zone.domain.zone_id
+  name     = "alex-learn.${var.domain_name}"
+  type     = "A"
+
+  alias {
+    name                   = var.demo_alb.dns_name
+    zone_id                = var.demo_alb.zone_id
+    evaluate_target_health = true
+  }
 }
 
 // create certificate
@@ -47,7 +55,7 @@ resource "aws_route53_record" "attach_record" {
   }
 
   allow_overwrite = true
-  zone_id = data.aws_route53_zone.domain.zone_id
+  zone_id         = data.aws_route53_zone.domain.zone_id
   name            = each.value.name
   records         = [each.value.record]
   ttl             = 60

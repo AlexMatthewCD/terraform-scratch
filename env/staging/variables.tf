@@ -20,5 +20,5 @@ variable "vpc_cidr" {
 
 variable "domain_name" {
   description = "Main demo domain name for practice"
-  default     = "iemsdev.online"
+  default     = "crystaldelta.net"
 }

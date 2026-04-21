@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    aws = {
+      source                = "hashicorp/aws"
+      configuration_aliases = [aws.infra]
+    }
+  }
+}
+
 data "aws_availability_zones" "available" {
   provider = aws.infra
   state    = "available"
@@ -27,6 +36,7 @@ resource "aws_subnet" "private" {
     Environment = var.env_name
     Application = var.app_name
     CostCenter  = var.cost_center
+    Type        = "private"
   }
 }
 
@@ -43,6 +53,7 @@ resource "aws_subnet" "public" {
     Environment = var.env_name
     Application = var.app_name
     CostCenter  = var.cost_center
+    Type        = "public"
   }
 }
 
@@ -58,6 +69,7 @@ resource "aws_subnet" "db" {
     Environment = var.env_name
     Application = var.app_name
     CostCenter  = var.cost_center
+    Type        = "private"
   }
 }
 

@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    aws = {
+      source                = "hashicorp/aws"
+      configuration_aliases = [aws.infra]
+    }
+  }
+}
+
 resource "aws_security_group" "demo" {
   provider    = aws.infra
   name        = "${var.app_name}-demo-sg"
