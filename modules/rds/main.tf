@@ -23,8 +23,7 @@ resource "aws_db_instance" "mvr_db_instance" {
   vpc_security_group_ids  = [] // db and lambda sg
   db_subnet_group_name    = aws_db_subnet_group.db_subnet.id
   backup_retention_period = 30
-  multi_az                = false // 
-  #   kms_key_id                   = ""
+  multi_az                = false
   copy_tags_to_snapshot        = true // or false is default
   auto_minor_version_upgrade   = true // idk
   allow_major_version_upgrade  = true // idk
