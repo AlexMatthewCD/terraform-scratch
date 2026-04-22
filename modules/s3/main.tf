@@ -19,6 +19,14 @@ resource "aws_s3_bucket" "demo_website" {
   }
 }
 
+resource "aws_s3_bucket_versioning" "version_website" {
+  provider = aws.infra
+  bucket   = aws_s3_bucket.demo_website.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 data "aws_iam_policy_document" "origin_bucket_policy" {
     provider = aws.infra
   statement {

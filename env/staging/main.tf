@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 1.14.8"
+  required_version = "~> 1.14.9"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -19,77 +19,77 @@ terraform {
 provider "aws" {
   region  = "ap-south-1"
   profile = "cd-sandbox:SandboxDeveloperAccess"
-  alias   = "infra"
 }
 
-provider "aws" {
-  region  = "ap-south-1"
-  profile = "aws-cd-edtech-nonprod:EdtechNonprodDeveloperAccess"
-  alias   = "dns"
-}
+# provider "aws" {
+#   region  = "ap-south-1"
+#   profile = "aws-cd-edtech-nonprod:EdtechNonprodDeveloperAccess"
+#   alias   = "dns"
+# }
 
-provider "aws" {
-  region  = "us-east-1"
-  profile = "cd-sandbox:SandboxDeveloperAccess"
-  alias   = "east"
-}
+# provider "aws" {
+#   region  = "us-east-1"
+#   profile = "cd-sandbox:SandboxDeveloperAccess"
+#   alias   = "east"
+# }
 
 
-resource "aws_s3_bucket" "tfstate" {
-  provider = aws.infra
-  bucket   = "${var.app_name}-${var.env_name}-tfstate"
-  tags = {
-    Name        = "${var.app_name}-tfstate"
-    Application = var.app_name
-    Environment = var.env_name
-    CostCenter  = var.cost_center
-  }
-  force_destroy = true
-}
 
-resource "aws_s3_bucket_versioning" "version-tfstate" {
-  provider = aws.infra
-  bucket   = aws_s3_bucket.tfstate.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
+# resource "aws_s3_bucket" "tfstate" {
+#   provider = aws.infra
+#   bucket   = "${var.app_name}-${var.env_name}-tfstate"
+#   tags = {
+#     Name        = "${var.app_name}-tfstate"
+#     Application = var.app_name
+#     Environment = var.env_name
+#     CostCenter  = var.cost_center
+#   }
+#   force_destroy = true
+# }
 
-module "vpc" {
-  providers = {
-    aws.infra = aws.infra
-  }
-  source      = "../../modules/vpc"
-  app_name    = var.app_name
-  env_name    = var.env_name
-  vpc_cidr    = var.vpc_cidr
-  cost_center = var.cost_center
-}
+# resource "aws_s3_bucket_versioning" "version-tfstate" {
+#   provider = aws.infra
+#   bucket   = aws_s3_bucket.tfstate.id
+#   versioning_configuration {
+#     status = "Enabled"
+#   }
+# }
 
-module "security" {
-  providers = {
-    aws.infra = aws.infra
-  }
-  source      = "../../modules/security"
-  app_name    = var.app_name
-  env_name    = var.env_name
-  vpc_cidr    = var.vpc_cidr
-  cost_center = var.cost_center
-  vpc_id      = module.vpc.vpc_id
-}
+# module "vpc" {
+#   providers = {
+#     aws.infra = aws.infra
+#   }
+#   source      = "../../modules/vpc"
+#   app_name    = var.app_name
+#   env_name    = var.env_name
+#   vpc_cidr    = var.vpc_cidr
+#   cost_center = var.cost_center
+# }
 
-module "acm" {
-  providers = {
-    aws.dns   = aws.dns
-    aws.east = aws.east
-  }
-  source      = "../../modules/acm"
-  app_name    = var.app_name
-  env_name    = var.env_name
-  cost_center = var.cost_center
-  domain_name = var.domain_name
-  # demo_alb    = module.alb.demo_alb
-}
+# module "security" {
+#   providers = {
+#     aws.infra = aws.infra
+#   }
+#   source      = "../../modules/security"
+#   app_name    = var.app_name
+#   env_name    = var.env_name
+#   vpc_cidr    = var.vpc_cidr
+#   cost_center = var.cost_center
+#   vpc_id      = module.vpc.vpc_id
+# }
+
+# module "acm" {
+#   providers = {
+#     aws.dns   = aws.dns
+#     aws.east = aws.east
+#   }
+#   source      = "../../modules/acm"
+#   app_name    = var.app_name
+#   env_name    = var.env_name
+#   cost_center = var.cost_center
+#   domain_name = var.domain_name
+#   # demo_alb    = module.alb.demo_alb
+# }
 
 // used when learning ALB
 # module "alb" {
@@ -106,27 +106,27 @@ module "acm" {
 #   demo_sg_id    = module.security.demo_sg_id
 # }
 
-module "cloudfront" {
-  providers = {
-    aws.infra = aws.infra
-    aws.dns = aws.dns
-  }
-  source      = "../../modules/cloudfront"
-  app_name    = var.app_name
-  env_name    = var.env_name
-  cost_center = var.cost_center
-  domain_name = var.domain_name
-  certificate = module.acm.certificate
-  website_bucket = module.s3.website_bucket
-}
+# module "cloudfront" {
+#   providers = {
+#     aws.infra = aws.infra
+#     aws.dns = aws.dns
+#   }
+#   source      = "../../modules/cloudfront"
+#   app_name    = var.app_name
+#   env_name    = var.env_name
+#   cost_center = var.cost_center
+#   domain_name = var.domain_name
+#   certificate = module.acm.certificate
+#   website_bucket = module.s3.website_bucket
+# }
 
-module "s3" {
-  providers = {
-    aws.infra = aws.infra
-  }
-  source      = "../../modules/s3"
-  app_name    = var.app_name
-  env_name    = var.env_name
-  cost_center = var.cost_center
-  s3_distribution = module.cloudfront.s3_distribution
-}
+# module "s3" {
+#   providers = {
+#     aws.infra = aws.infra
+#   }
+#   source      = "../../modules/s3"
+#   app_name    = var.app_name
+#   env_name    = var.env_name
+#   cost_center = var.cost_center
+#   s3_distribution = module.cloudfront.s3_distribution
+# }
