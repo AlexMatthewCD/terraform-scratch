@@ -1,0 +1,15 @@
+[
+    {
+      "name":"${app_name}-${env_name}-task-definition",
+      "memory_reservation": "${soft_memory_reservation}", 
+      "image":"${app_ecr}:${tag}",
+      "portMappings":[
+          {
+            "containerPort": 4000,
+            "hostPort": 4000,
+            "protocol":"tcp"
+          }
+      ],
+      "essential":true
+    }
+]

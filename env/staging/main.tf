@@ -33,7 +33,29 @@ provider "aws" {
 #   alias   = "east"
 # }
 
+# module "iam" {
+#   source      = "../../modules/iam"
+#   app_name    = var.app_name
+#   env_name    = var.env_name
+#   cost_center = var.cost_center
+# }
 
+module "ecr" {
+  source      = "../../modules/ecr"
+  app_name    = var.app_name
+  env_name    = var.env_name
+  cost_center = var.cost_center
+}
+
+module "ecs" {
+  source      = "../../modules/ecs"
+  app_name    = var.app_name
+  env_name    = var.env_name
+  cost_center = var.cost_center
+  ecr         = module.ecr.connect_ecr
+  private_subnet = module.vpc.public_subnet
+  demo_sg_id    = module.security.demo_sg_id
+}
 
 # resource "aws_s3_bucket" "tfstate" {
 #   provider = aws.infra
@@ -55,28 +77,24 @@ provider "aws" {
 #   }
 # }
 
-# module "vpc" {
-#   providers = {
-#     aws.infra = aws.infra
-#   }
-#   source      = "../../modules/vpc"
-#   app_name    = var.app_name
-#   env_name    = var.env_name
-#   vpc_cidr    = var.vpc_cidr
-#   cost_center = var.cost_center
-# }
 
-# module "security" {
-#   providers = {
-#     aws.infra = aws.infra
-#   }
-#   source      = "../../modules/security"
-#   app_name    = var.app_name
-#   env_name    = var.env_name
-#   vpc_cidr    = var.vpc_cidr
-#   cost_center = var.cost_center
-#   vpc_id      = module.vpc.vpc_id
-# }
+
+module "vpc" {
+  source      = "../../modules/vpc"
+  app_name    = var.app_name
+  env_name    = var.env_name
+  vpc_cidr    = var.vpc_cidr
+  cost_center = var.cost_center
+}
+
+module "security" {
+  source      = "../../modules/security"
+  app_name    = var.app_name
+  env_name    = var.env_name
+  vpc_cidr    = var.vpc_cidr
+  cost_center = var.cost_center
+  vpc_id      = module.vpc.vpc_id
+}
 
 # module "acm" {
 #   providers = {
