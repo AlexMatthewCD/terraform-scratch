@@ -9,7 +9,7 @@ terraform {
 
 locals {
   s3_origin_id = "${var.app_name}-${var.env_name}-s3-origin"
-  my_domain    = "alex-learn.${var.domain_name}"
+  my_domain    = "alex-learn.${var.main_domain_name}"
 }
 
 data "aws_cloudfront_cache_policy" "disabled" {
@@ -69,18 +69,18 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
 data "aws_route53_zone" "domain" {
   provider = aws.dns
-  name     = var.domain_name
+  name     = var.main_domain_name
 }
 
 resource "aws_route53_record" "website" {
   provider = aws.dns
   zone_id  = data.aws_route53_zone.domain.zone_id
-  name     = "alex-learn.${var.domain_name}"
+  name     = "alex-learn.${var.main_domain_name}"
   type     = "A"
   allow_overwrite = true
 
   alias {
-    name                   = aws_cloudfront_distribution.s3_distribution.domain_name
+    name                   = aws_cloudfront_distribution.s3_distribution.main_domain_name
     zone_id                = aws_cloudfront_distribution.s3_distribution.hosted_zone_id
     evaluate_target_health = true
   }

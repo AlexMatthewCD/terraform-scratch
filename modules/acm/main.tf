@@ -1,39 +1,27 @@
-terraform {
-  required_providers {
-    aws = {
-      source                = "hashicorp/aws"
-      configuration_aliases = [aws.east, aws.dns]
-    }
-  }
+provider "aws" {
+  region  = "us-east-1"
+  profile = "edtech-nonprod"
+  alias   = "dns-record"
+}
+
+provider "aws" {
+  region = "ap-south-1"
+  profile = "cd-sandbox"
+  alias   = "alb-acm-cert"
 }
 
 data "aws_route53_zone" "domain" {
-  provider = aws.dns
-  name     = var.domain_name
+  provider = aws.dns-record
+  name     = var.main_domain_name
 }
 
-// used when learning ALB
-# resource "aws_route53_record" "scratch" {
-#   provider = aws.dns
-#   zone_id  = data.aws_route53_zone.domain.zone_id
-#   name     = "alex-learn.${var.domain_name}"
-#   type     = "A"
-
-#   alias {
-#     name                   = var.demo_alb.dns_name
-#     zone_id                = var.demo_alb.zone_id
-#     evaluate_target_health = true
-#   }
-# }
-
-// create certificate
-resource "aws_acm_certificate" "certificate" {
-  provider          = aws.east
-  domain_name       = "alex-learn.${var.domain_name}"
+resource "aws_acm_certificate" "alb_certificate" {
+  domain_name       = "wiki.${var.main_domain_name}"
   validation_method = "DNS"
+  provider = aws.alb-acm-cert
 
   tags = {
-    Name        = "${var.app_name}-demo-certificate"
+    Name        = "${var.app_name}-alb-certificate"
     Environment = var.env_name
     Application = var.app_name
     CostCenter  = var.cost_center
@@ -45,10 +33,10 @@ resource "aws_acm_certificate" "certificate" {
 }
 
 // attach certificate
-resource "aws_route53_record" "attach_record" {
-  provider = aws.dns
+resource "aws_route53_record" "alb_domain_record" {
+  provider = aws.dns-record
   for_each = {
-    for dvo in aws_acm_certificate.certificate.domain_validation_options : dvo.domain_name => {
+    for dvo in aws_acm_certificate.alb_certificate.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
@@ -64,7 +52,7 @@ resource "aws_route53_record" "attach_record" {
 }
 
 resource "aws_acm_certificate_validation" "certificate_validation" {
-  provider                = aws.east
-  certificate_arn         = aws_acm_certificate.certificate.arn
-  validation_record_fqdns = [for record in aws_route53_record.attach_record : record.fqdn]
+  provider = aws.alb-acm-cert
+  certificate_arn         = aws_acm_certificate.alb_certificate.arn
+  validation_record_fqdns = [for record in aws_route53_record.alb_domain_record : record.fqdn]
 }

@@ -1,6 +1,6 @@
 variable "app_name" {
   description = "Name of the application"
-  default     = "alex-scratch-tf"
+  default     = "wikiJs"
 }
 
 variable "env_name" {
@@ -10,15 +10,18 @@ variable "env_name" {
 
 variable "cost_center" {
   description = "Tag used to identify the infra cost"
-  default     = "Alex-CD"
+  default     = "DevOps-CD"
 }
-
+variable "az_count" {
+  description = "Number of Availability Zones"
+  default = 2
+}
 variable "vpc_cidr" {
   description = "IPV4 CIDR Block for the main VPC"
-  default     = "7.7.0.0/20"
+  default     = "10.7.0.0/16"
 }
 
-variable "domain_name" {
+variable "main_domain_name" {
   description = "Main demo domain name for practice"
   default     = "crystaldelta.net"
 }

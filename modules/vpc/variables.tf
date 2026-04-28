@@ -7,6 +7,9 @@ variable "app_name" {
 variable "env_name" {
   description = "Name of the Application Environment"
 }
+variable "az_count" {
+  description = "Number of Availability Zones"
+}
 variable "cost_center" {
   description = "Tag used to identify the infra cost"
 }

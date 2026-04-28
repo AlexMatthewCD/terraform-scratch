@@ -7,7 +7,7 @@ variable "env_name" {
 variable "cost_center" {
   description = "Tag used to identify the infra cost"
 }
-variable "domain_name" {
+variable "main_domain_name" {
   description = "Main demo domain name for practice"
 }
 variable "certificate" {
