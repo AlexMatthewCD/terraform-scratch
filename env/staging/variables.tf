@@ -23,7 +23,3 @@ variable "domain_name" {
   default     = "crystaldelta.net"
 }
 
-variable "aws_region" {
-  description = "Cloudwatch log region."
-  default     = "ap-south-1"
-}

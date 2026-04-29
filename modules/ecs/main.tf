@@ -1,3 +1,4 @@
+
 resource "aws_ecs_cluster" "app_cluster" {
   name = "${var.app_name}-${var.env_name}-cluster"
 
@@ -19,14 +20,15 @@ resource "aws_ecs_task_definition" "app_task_def" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = 512
   memory                   = 1024
-  execution_role_arn = data.aws_iam_role.ecs_execution_role.arn
+  execution_role_arn       = data.aws_iam_role.ecs_execution_role.arn
+
   container_definitions = templatefile("../../env/staging/taskdefinition/container.json", {
-    app_name                = var.app_name
-    env_name                = var.env_name
-    app_ecr                 = var.ecr
-    tag                     = "latest"
-    soft_memory_reservation = 512
+    app_name = var.app_name
+    env_name = var.env_name
+    app_ecr  = var.ecr
+    tag      = "latest"
   })
+
   tags = {
     Name        = "${var.app_name}-task-definition"
     Environment = var.env_name
@@ -39,17 +41,18 @@ resource "aws_ecs_service" "api" {
   name            = "${var.app_name}-${var.env_name}-api-service"
   cluster         = aws_ecs_cluster.app_cluster.id
   launch_type     = "FARGATE"
-  desired_count   = 0
+  desired_count   = 1
   task_definition = aws_ecs_task_definition.app_task_def.arn
 
   network_configuration {
     security_groups = [var.demo_sg_id]
-    subnets         = [var.private_subnet[0].id, var.private_subnet[1].id]
+    subnets         = var.private_subnet[*].id
   }
 
-  deployment_circuit_breaker {
-    enable = false
-    rollback = false
+  load_balancer {
+    target_group_arn = var.api_backend_tg_id
+    container_name   = "${var.app_name}-${var.env_name}-task-definition"
+    container_port   = 3000
   }
 
   tags = {

@@ -48,13 +48,14 @@ module "ecr" {
 }
 
 module "ecs" {
-  source      = "../../modules/ecs"
-  app_name    = var.app_name
-  env_name    = var.env_name
-  cost_center = var.cost_center
-  ecr         = module.ecr.connect_ecr
-  private_subnet = module.vpc.public_subnet
-  demo_sg_id    = module.security.demo_sg_id
+  source            = "../../modules/ecs"
+  app_name          = var.app_name
+  env_name          = var.env_name
+  cost_center       = var.cost_center
+  ecr               = module.ecr.connect_ecr
+  private_subnet    = module.vpc.private_subnet
+  demo_sg_id        = module.security.demo_sg_id
+  api_backend_tg_id = module.alb.api_backend_tg_id
 }
 
 # resource "aws_s3_bucket" "tfstate" {
@@ -85,6 +86,7 @@ module "vpc" {
   env_name    = var.env_name
   vpc_cidr    = var.vpc_cidr
   cost_center = var.cost_center
+  demo_sg_id = module.security.demo_sg_id
 }
 
 module "security" {
@@ -94,6 +96,17 @@ module "security" {
   vpc_cidr    = var.vpc_cidr
   cost_center = var.cost_center
   vpc_id      = module.vpc.vpc_id
+}
+
+module "endpoints" {
+  source                 = "../../modules/endpoints"
+  app_name               = var.app_name
+  env_name               = var.env_name
+  cost_center            = var.cost_center
+  vpc_id                 = module.vpc.vpc_id
+  demo_sg_id             = module.security.demo_sg_id
+  private_subnet         = module.vpc.private_subnet
+  private_route_table_id = module.vpc.private_route_table_id
 }
 
 # module "acm" {
@@ -110,19 +123,16 @@ module "security" {
 # }
 
 // used when learning ALB
-# module "alb" {
-#   providers = {
-#     aws.infra = aws.infra
-#   }
-#   source        = "../../modules/alb"
-#   app_name      = var.app_name
-#   env_name      = var.env_name
-#   cost_center   = var.cost_center
-#   public_subnet = module.vpc.public_subnet
-#   vpc_id        = module.vpc.vpc_id
-#   vpc_cidr      = var.vpc_cidr
-#   demo_sg_id    = module.security.demo_sg_id
-# }
+module "alb" {
+  source        = "../../modules/alb"
+  app_name      = var.app_name
+  env_name      = var.env_name
+  cost_center   = var.cost_center
+  public_subnet = module.vpc.public_subnet
+  vpc_id        = module.vpc.vpc_id
+  vpc_cidr      = var.vpc_cidr
+  demo_sg_id    = module.security.demo_sg_id
+}
 
 # module "cloudfront" {
 #   providers = {

@@ -12,6 +12,10 @@ output "private_subnet" {
 output "public_subnet" {
   value = aws_subnet.public
 }
-output "db_subnet" {
-  value = aws_subnet.db
+
+output "private_route_table_id" {
+  value = aws_route_table.private_route.id
 }
+# output "db_subnet" {
+#   value = aws_subnet.db
+# }

@@ -10,3 +10,7 @@ variable "env_name" {
 variable "cost_center" {
   description = "Tag used to identify the infra cost"
 }
+
+variable "demo_sg_id" {
+  description = "demo security group"
+}
