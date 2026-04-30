@@ -27,6 +27,7 @@ resource "aws_instance" "main_server" {
   subnet_id              = var.private_subnet_id
   disable_api_termination = true
   associate_public_ip_address = false
+  key_name = "latrobe-stg-key"
   root_block_device {
     volume_type           = "gp3"
     volume_size           = "20"
@@ -54,7 +55,9 @@ resource "aws_instance" "bastion_server" {
   vpc_security_group_ids = [var.bastion_sg_id]
   subnet_id              = var.public_subnet_id
   disable_api_termination = true
-  associate_public_ip_address = true
+  associate_public_ip_address = false
+  key_name = "latrobe-stg-key"
+
   root_block_device {
     volume_type           = "gp3"
     volume_size           = "20"

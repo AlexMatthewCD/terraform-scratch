@@ -12,26 +12,26 @@ resource "aws_lb" "wiki_alb" {
   enable_deletion_protection = false
 
   tags = {
-    "Name"        = "${var.app_name}-wiki_alb"
+    "Name"        = "${var.app_name}-${var.env_name}-alb"
     "Environment" = "${var.env_name}"
     "Application" = var.app_name
     "CostCenter"  = var.cost_center
   }
 }
 
-resource "aws_lb_target_group" "wiki_alb_tg" {
-  name = "${var.app_name}-${var.env_name}-wiki-alb-tg"
-  port = 3000
+resource "aws_lb_target_group" "latrobe_alb_tg" {
+  name = "${var.app_name}-${var.env_name}-alb-tg"
+  port = 5173
   protocol = "HTTP"
   vpc_id = var.vpc_id
   target_type = "instance"
 
   health_check {
-    healthy_threshold = 3
-    unhealthy_threshold = 10
+    healthy_threshold = 5
+    unhealthy_threshold = 2
     timeout = 5
     interval = 30
-    path = "/"
+    path = "/api"
   }
 }
 
@@ -44,7 +44,7 @@ resource "aws_lb_listener" "https_listener" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.wiki_alb_tg.arn
+    target_group_arn = aws_lb_target_group.latrobe_alb_tg.arn
   }
 }
 
@@ -54,12 +54,12 @@ resource "aws_lb_listener_rule" "wiki_listener_rule" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.wiki_alb_tg.arn
+    target_group_arn = aws_lb_target_group.latrobe_alb_tg.arn
   }
 
   condition {
     host_header {
-      values = ["wiki.${var.main_domain_name}"]
+      values = ["*.${var.main_domain_name}"]
     }
   }
 }
@@ -71,7 +71,7 @@ data "aws_route53_zone" "domain" {
 
 resource "aws_route53_record" "wiki" {
   provider = aws.dns-record
-  name    = "wiki.${var.main_domain_name}"
+  name    = var.alb_domain_name
   zone_id = data.aws_route53_zone.domain.zone_id
   type    = "A"
   allow_overwrite = true

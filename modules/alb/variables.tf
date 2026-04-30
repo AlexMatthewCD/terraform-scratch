@@ -26,3 +26,6 @@ variable "certificate_arn" {
 variable "main_domain_name" {
   description = "Name of the main domain"
 }
+variable "alb_domain_name" {
+  description = "ALB Domain"
+}

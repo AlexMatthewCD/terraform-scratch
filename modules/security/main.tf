@@ -76,7 +76,7 @@ resource "aws_security_group" "bastion_sg" {
 resource "aws_vpc_security_group_ingress_rule" "bastion_inbound" {
   security_group_id = aws_security_group.bastion_sg.id
   description       = "Allow SSH"
-  cidr_ipv4         = var.vpc_cidr
+  cidr_ipv4         = "103.124.152.135/32"
   from_port         = 22
   to_port           = 22
   ip_protocol       = "tcp"

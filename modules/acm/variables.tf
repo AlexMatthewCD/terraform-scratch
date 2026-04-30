@@ -10,6 +10,6 @@ variable "cost_center" {
 variable "main_domain_name" {
   description = "Main demo domain name for practice"
 }
-# variable "demo_alb" {
-#   description = "load balencer for practice"
-# }
+variable "alb_domain_name" {
+  description = "ALB Domain"
+}

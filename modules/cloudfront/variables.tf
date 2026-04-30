@@ -10,9 +10,12 @@ variable "cost_center" {
 variable "main_domain_name" {
   description = "Main demo domain name for practice"
 }
-variable "certificate" {
-  description = "Passing certificate to get ARN value"
+variable "frontend_domain_name" {
+  description = "Frontend Domain url"
 }
-variable "website_bucket" {
-  description = "demo website bucket"
+variable "s3_static" {
+  description = "URL of the S3 Bucket"
+}
+variable "nv_cf_certificate" {
+  description = "Passing certificate to get ARN value"
 }

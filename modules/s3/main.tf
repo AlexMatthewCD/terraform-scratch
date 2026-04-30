@@ -1,54 +1,73 @@
-terraform {
-  required_providers {
-    aws = {
-      source                = "hashicorp/aws"
-      configuration_aliases = [aws.infra]
-    }
-  }
-}
-
-resource "aws_s3_bucket" "demo_website" {
-    provider = aws.infra
-  bucket = "${var.app_name}-${var.env_name}-demo-web"
+resource "aws_s3_bucket" "latrobe_website" {
+  bucket = "${var.app_name}-${var.env_name}-static-bucket"
 
   tags = {
-    Name        = "${var.app_name}-demo-web"
+    Name        = "${var.app_name}-static-bucket"
     Environment = var.env_name
     Application = var.app_name
     CostCenter  = var.cost_center
   }
 }
+resource "aws_s3_bucket_versioning" "frontend_versioning" {
+  bucket = aws_s3_bucket.latrobe_website.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+#Object ownership for Frontend Static site Bucket
+resource "aws_s3_bucket_ownership_controls" "frontend_ownership" {
+  bucket = aws_s3_bucket.latrobe_website.id
+  rule {
+    object_ownership = "ObjectWriter"
+  }
+}
+#Public Access for Frontend Static Bucket
+resource "aws_s3_bucket_public_access_block" "frontend_public_access" {
+  bucket = aws_s3_bucket.latrobe_website.id
 
-data "aws_iam_policy_document" "origin_bucket_policy" {
-    provider = aws.infra
-  statement {
-    sid    = "AllowCloudFrontServicePrincipalReadWrite"
-    effect = "Allow"
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+#ACL for Frontend Static Bucket
+resource "aws_s3_bucket_acl" "frontend_acl" {
+  depends_on = [aws_s3_bucket_ownership_controls.frontend_ownership]
 
-    principals {
-      type        = "Service"
-      identifiers = ["cloudfront.amazonaws.com"]
-    }
+  bucket = aws_s3_bucket.latrobe_website.id
+  acl    = "private"
+}
+#Website Configuration for Frontend Static Bucket
+resource "aws_s3_bucket_website_configuration" "mvr_website" {
+  bucket = aws_s3_bucket.latrobe_website.id
 
-    actions = [
-      "s3:GetObject",
-      "s3:PutObject",
-    ]
+  index_document {
+    suffix = "index.html"
+  }
 
-    resources = [
-      "${aws_s3_bucket.demo_website.arn}/*",
-    ]
+  error_document {
+    key = "index.html"
+  }
+}
+#CORS configuration for Frontend Static Bucket
+resource "aws_s3_bucket_cors_configuration" "mvr_cors" {
+  bucket = aws_s3_bucket.latrobe_website.id
 
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values   = [var.s3_distribution.arn]
-    }
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "HEAD"]
+    allowed_origins = ["*"]
+    expose_headers  = []
   }
 }
 
-resource "aws_s3_bucket_policy" "demo_website" {
-  provider = aws.infra
-  bucket = aws_s3_bucket.demo_website.bucket
-  policy = data.aws_iam_policy_document.origin_bucket_policy.json
+resource "aws_s3_bucket_website_configuration" "static" {
+  bucket = aws_s3_bucket.latrobe_website.id
+  
+  index_document {
+    suffix = "index.html"
+  }
+  error_document {
+    key = "index.html"
+  }
 }
