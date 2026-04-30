@@ -1,6 +1,6 @@
 variable "app_name" {
   description = "Name of the application"
-  default     = "wikiJs"
+  default     = "latrobe"
 }
 
 variable "env_name" {
@@ -10,7 +10,7 @@ variable "env_name" {
 
 variable "cost_center" {
   description = "Tag used to identify the infra cost"
-  default     = "DevOps-CD"
+  default     = "Balaji-CD"
 }
 variable "az_count" {
   description = "Number of Availability Zones"
@@ -23,5 +23,13 @@ variable "vpc_cidr" {
 
 variable "main_domain_name" {
   description = "Main demo domain name for practice"
-  default     = "crystaldelta.net"
+  default     = "crystaldelta.ai"
+}
+variable "frontend_domain_name" {
+  description = "frontend domain url"
+  default = "latrobe.crystaldelta.ai"
+}
+variable "alb_domain_name" {
+  description = "ALB Domain"
+  default = "api.latrobe.crystaldelta.ai"
 }
