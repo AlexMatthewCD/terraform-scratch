@@ -14,11 +14,11 @@ locals {
 
 data "aws_cloudfront_cache_policy" "disabled" {
   provider = aws.infra
-  name = "Managed-CachingDisabled"
+  name     = "Managed-CachingDisabled"
 }
 
 resource "aws_cloudfront_origin_access_control" "default" {
-    provider = aws.infra
+  provider                          = aws.infra
   name                              = "default-oac"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
@@ -26,9 +26,9 @@ resource "aws_cloudfront_origin_access_control" "default" {
 }
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
-    provider = aws.infra
-    comment             = "Distribution for the demo website"
-    aliases = ["alex-learn.crystaldelta.net"]
+  provider = aws.infra
+  comment  = "Distribution for the demo website"
+  aliases  = ["alex-learn.crystaldelta.net"]
   origin {
     domain_name              = var.website_bucket.bucket_regional_domain_name
     origin_access_control_id = aws_cloudfront_origin_access_control.default.id
@@ -38,9 +38,9 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   default_root_object = "index.html"
 
   default_cache_behavior {
-    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = local.s3_origin_id
+    allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = local.s3_origin_id
     cache_policy_id        = data.aws_cloudfront_cache_policy.disabled.id
     viewer_protocol_policy = "redirect-to-https"
   }
@@ -50,7 +50,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   restrictions {
     geo_restriction {
       restriction_type = "none"
-      locations = []
+      locations        = []
     }
   }
 
@@ -73,10 +73,10 @@ data "aws_route53_zone" "domain" {
 }
 
 resource "aws_route53_record" "website" {
-  provider = aws.dns
-  zone_id  = data.aws_route53_zone.domain.zone_id
-  name     = "alex-learn.${var.domain_name}"
-  type     = "A"
+  provider        = aws.dns
+  zone_id         = data.aws_route53_zone.domain.zone_id
+  name            = "alex-learn.${var.domain_name}"
+  type            = "A"
   allow_overwrite = true
 
   alias {

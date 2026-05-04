@@ -21,9 +21,9 @@ data "aws_ami" "ubuntu" {
 }
 
 resource "aws_instance" "main_server" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t4g.small"
-  #   vpc_security_group_ids = []
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = "t4g.nano"
+  vpc_security_group_ids = ["var.security_group_id"]
   #   subnet_id              = ""
   disable_api_termination = true
   #   associate_public_ip_address = true

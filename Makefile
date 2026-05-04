@@ -27,6 +27,13 @@ fmt:
 	terraform -chdir=modules/ec2 fmt
 	terraform -chdir=modules/rds fmt
 	terraform -chdir=modules/kms fmt
+	terraform -chdir=modules/lambda fmt
+	terraform -chdir=modules/iam fmt
+	terraform -chdir=modules/s3 fmt
+	terraform -chdir=modules/cloudfront fmt
+	terraform -chdir=modules/ecr fmt
+	terraform -chdir=modules/ecs fmt
+	terraform -chdir=modules/endpoints fmt
 
 list-stg:
 	terraform -chdir=$(STG_DIR) state list

@@ -1,5 +1,6 @@
+// dynamicaly get all the availability zones in current region
 data "aws_availability_zones" "available" {
-  state    = "available"
+  state = "available"
 }
 
 // main vpc
@@ -62,7 +63,7 @@ resource "aws_subnet" "public" {
 
 # // Internet Gateway
 resource "aws_internet_gateway" "gw" {
-  vpc_id   = aws_vpc.main.id
+  vpc_id = aws_vpc.main.id
   tags = {
     Name        = "${var.app_name}-igw"
     Environment = var.env_name
@@ -72,7 +73,7 @@ resource "aws_internet_gateway" "gw" {
 }
 
 resource "aws_route_table" "public_route" {
-  vpc_id   = aws_vpc.main.id
+  vpc_id = aws_vpc.main.id
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.gw.id

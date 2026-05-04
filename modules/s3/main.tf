@@ -8,8 +8,8 @@ terraform {
 }
 
 resource "aws_s3_bucket" "demo_website" {
-    provider = aws.infra
-  bucket = "${var.app_name}-${var.env_name}-demo-web"
+  provider = aws.infra
+  bucket   = "${var.app_name}-${var.env_name}-demo-web"
 
   tags = {
     Name        = "${var.app_name}-demo-web"
@@ -28,7 +28,7 @@ resource "aws_s3_bucket_versioning" "version_website" {
 }
 
 data "aws_iam_policy_document" "origin_bucket_policy" {
-    provider = aws.infra
+  provider = aws.infra
   statement {
     sid    = "AllowCloudFrontServicePrincipalReadWrite"
     effect = "Allow"
@@ -57,6 +57,6 @@ data "aws_iam_policy_document" "origin_bucket_policy" {
 
 resource "aws_s3_bucket_policy" "demo_website" {
   provider = aws.infra
-  bucket = aws_s3_bucket.demo_website.bucket
-  policy = data.aws_iam_policy_document.origin_bucket_policy.json
+  bucket   = aws_s3_bucket.demo_website.bucket
+  policy   = data.aws_iam_policy_document.origin_bucket_policy.json
 }

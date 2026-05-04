@@ -11,19 +11,19 @@ resource "aws_db_subnet_group" "db_subnet" {
 }
 
 resource "aws_db_instance" "mvr_db_instance" {
-  allocated_storage       = 20
-  max_allocated_storage   = 50
-  engine                  = "postgres"
-  engine_version          = 17.7 // 17.7 (R1) is LTS but 17.2 is R3
-  instance_class          = "db.t4g.small"
-  identifier              = "${var.app_name}-${var.env_name}-db"
-  db_name                 = "${var.app_name}_${var.env_name}_db"
-  username                = ""
-  password                = ""
-  vpc_security_group_ids  = [] // db and lambda sg
-  db_subnet_group_name    = aws_db_subnet_group.db_subnet.id
-  backup_retention_period = 30
-  multi_az                = false
+  allocated_storage            = 20
+  max_allocated_storage        = 50
+  engine                       = "postgres"
+  engine_version               = 17.7 // 17.7 (R1) is LTS but 17.2 is R3
+  instance_class               = "db.t4g.small"
+  identifier                   = "${var.app_name}-${var.env_name}-db"
+  db_name                      = "${var.app_name}_${var.env_name}_db"
+  username                     = ""
+  password                     = ""
+  vpc_security_group_ids       = [] // db and lambda sg
+  db_subnet_group_name         = aws_db_subnet_group.db_subnet.id
+  backup_retention_period      = 30
+  multi_az                     = false
   copy_tags_to_snapshot        = true // or false is default
   auto_minor_version_upgrade   = true // idk
   allow_major_version_upgrade  = true // idk
