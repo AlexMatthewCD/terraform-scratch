@@ -1,60 +1,32 @@
-# IAM role for Lambda execution
-data "aws_iam_policy_document" "assume_role" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
-    }
-
-    actions = [
-      "logs:*",
-      "sts:AssumeRole",
-      "ec2:StartInstances",
-      "ec2:StopInstances"
-    ]
-  }
-}
-
-resource "aws_iam_role" "lambda_ec2_access" {
-  name               = "${app_name}_${env_name}_lambda_execution_role"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
-
-  tags = {
-    Name        = "${var.app_name}-lambda-execution-role"
-    Environment = var.env_name
-    Application = var.app_name
-    CostCenter  = var.cost_center
-  }
-}
-
 # Package the Lambda function code
-data "archive_file" "example" {
+data "archive_file" "function_zip" {
   type        = "zip"
-  source_file = "${path.module}/lambda/index.js"
-  output_path = "${path.module}/lambda/function.zip"
+  source_file = "${path.module}/../../functions/start_stop_ec2/code.py"
+  output_path = "${path.module}/../../functions/start_stop_ec2.zip"
 }
 
 # Lambda function
 resource "aws_lambda_function" "example" {
-  filename      = data.archive_file.example.output_path
-  function_name = "example_lambda_function"
-  role          = aws_iam_role.example.arn
-  handler       = "index.handler"
-  code_sha256   = data.archive_file.example.output_base64sha256
+  filename      = data.archive_file.function_zip.output_path
+  function_name = "${var.app_name}-${var.env_name}-ec2-starter-stopper"
+  role          = var.iam_role_arn
+  handler       = "code.lambda_handler"
+  code_sha256   = data.archive_file.function_zip.output_base64sha256
 
-  runtime = "nodejs20.x"
+  runtime = "python3.10"
+  timeout = 60
 
   environment {
     variables = {
-      ENVIRONMENT = "production"
+      ENVIRONMENT = var.env_name
       LOG_LEVEL   = "info"
     }
   }
 
   tags = {
-    Environment = "production"
-    Application = "example"
+    Name        = "${var.app_name}-ec2-starter-stopper"
+    Environment = var.env_name
+    Application = var.app_name
+    CostCenter  = var.cost_center
   }
 }

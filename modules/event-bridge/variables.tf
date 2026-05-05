@@ -1,6 +1,3 @@
-variable "vpc_cidr" {
-  description = "IPV4 CIDR Block for the main VPC"
-}
 variable "app_name" {
   description = "Name of the Application"
 }
@@ -9,4 +6,10 @@ variable "env_name" {
 }
 variable "cost_center" {
   description = "Tag used to identify the infra cost"
+}
+variable "lambda_function_arn" {
+  description = "ARN of the Lambda function to trigger"
+}
+variable "lambda_function_name" {
+  description = "Name of the Lambda function for permission"
 }

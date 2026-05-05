@@ -7,3 +7,6 @@ variable "env_name" {
 variable "cost_center" {
   description = "Tag used to identify the infra cost"
 }
+variable "iam_role_arn" {
+  description = "ARN of the IAM role for the Lambda function"
+}

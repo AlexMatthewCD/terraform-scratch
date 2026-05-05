@@ -7,6 +7,6 @@ variable "env_name" {
 variable "cost_center" {
   description = "Tag used to identify the infra cost"
 }
-variable "security_group_id" {
-  description = "Security group ID to launch ec2 there"
+variable "subnet_id" {
+  description = "subnet to host the ec2 instance"
 }

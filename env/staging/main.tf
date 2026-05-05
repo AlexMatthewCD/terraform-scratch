@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 1.14.9"
+  required_version = "~> 1.15"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -33,12 +33,12 @@ provider "aws" {
 #   alias   = "east"
 # }
 
-# module "iam" {
-#   source      = "../../modules/iam"
-#   app_name    = var.app_name
-#   env_name    = var.env_name
-#   cost_center = var.cost_center
-# }
+module "iam" {
+  source      = "../../modules/iam"
+  app_name    = var.app_name
+  env_name    = var.env_name
+  cost_center = var.cost_center
+}
 
 # module "ecr" {
 #   source      = "../../modules/ecr"
@@ -86,26 +86,41 @@ module "vpc" {
   env_name    = var.env_name
   vpc_cidr    = var.vpc_cidr
   cost_center = var.cost_center
-  demo_sg_id  = module.security.demo_sg_id
+  # demo_sg_id  = module.security.demo_sg_id
 }
 
-module "security" {
-  source      = "../../modules/security"
-  app_name    = var.app_name
-  env_name    = var.env_name
-  vpc_cidr    = var.vpc_cidr
-  cost_center = var.cost_center
-  vpc_id      = module.vpc.vpc_id
-}
+# module "security" {
+#   source      = "../../modules/security"
+#   app_name    = var.app_name
+#   env_name    = var.env_name
+#   vpc_cidr    = var.vpc_cidr
+#   cost_center = var.cost_center
+#   vpc_id      = module.vpc.vpc_id
+# }
 
 module "ec2" {
-  source            = "../../modules/ec2"
-  app_name          = var.app_name
-  env_name          = var.env_name
-  vpc_cidr          = var.vpc_cidr
-  cost_center       = var.cost_center
-  vpc_id            = module.vpc.vpc_id
-  security_group_id = module.security.demo_sg_id
+  source      = "../../modules/ec2"
+  app_name    = var.app_name
+  env_name    = var.env_name
+  cost_center = var.cost_center
+  subnet_id   = module.vpc.private_subnet[0].id
+}
+
+module "lambda" {
+  source       = "../../modules/lambda"
+  app_name     = var.app_name
+  env_name     = var.env_name
+  cost_center  = var.cost_center
+  iam_role_arn = module.iam.lambda_role_arn
+}
+
+module "event-bridge" {
+  source               = "../../modules/event-bridge"
+  app_name             = var.app_name
+  env_name             = var.env_name
+  cost_center          = var.cost_center
+  lambda_function_arn  = module.lambda.lambda_function_arn
+  lambda_function_name = module.lambda.lambda_function_name
 }
 
 # module "endpoints" {
